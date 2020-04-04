@@ -1,0 +1,104 @@
+---
+title: "gather"
+author: "Arushi Saxena"
+date: "4/03/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#install.packages("rvest")
+#install.packages("tidytext")
+#install_github("lchiffon/wordcloud2")
+#install.packages("wordcloud2")
+#install.packages("Rcpp")
+library(Rcpp)
+library(dplyr)
+library(ggplot2)
+library(reprex)
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(gt)
+library(rvest)
+library(stringr)
+library(shiny)
+library(rvest)
+library(lubridate)
+library(hms)
+require(devtools)
+library(tidytext)
+library(wordcloud2)
+
+```
+
+```{r save this file locally, echo=FALSE, include=FALSE}
+a <- read.csv(file="https://raw.githubusercontent.com/fivethirtyeight/russian-troll-tweets/master/IRAhandle_tweets_1.csv") 
+```
+```{r}
+saveRDS(a, file ="RussianTweets.RDS")
+RussianTweets <- readRDS("RussianTweets.RDS")
+
+RussianTweets
+getwd()
+
+filelist <- list.files(path="C:/Users/arush/Downloads/russian-troll-tweets-master/russian-troll-tweets-master", pattern="*.csv")
+
+for(i in 1:5) {
+file<-read_csv(paste0("C:/Users/arush/Downloads/russian-troll-tweets-master/russian-troll-tweets-master/", filelist[i]))
+if(i==1){
+  TweetFrame<-file
+  next
+}
+TweetFrame<-bind_rows(TweetFrame, file)
+ 
+ }
+
+```
+
+```{r}
+
+# Split the publish date timestap into data and time for ease of use
+
+TweetFrame1 <- TweetFrame %>%
+  mutate(date = sapply(strsplit(as.character(TweetFrame$publish_date), " "), "[", 1)) %>%
+  mutate(time = sapply(strsplit(as.character(TweetFrame$publish_date), " "), "[", 2))
+
+# Make a new df with English only content from the year 2016. Use 'language' and 'publish_date'
+
+cleaned <- TweetFrame1 %>%
+  select(language, date, content) %>%
+  filter(language == "English") %>%
+  filter(stringr::str_detect(date, '2016'))
+
+# Making the wordcloud utilizing this link https://www.r-bloggers.com/awesome-twitter-word-clouds-in-r/
+
+# Unnest the words for cloud - code via Tidy Text
+
+trolltweets <- cleaned %>% 
+  unnest_tokens(word, content)
+
+# Remove stop words - aka typically very common words such as "the", "of" etc
+
+data(stop_words)
+trolltweets <- trolltweets %>%
+  anti_join(stop_words)
+
+# Remove other nonsense words
+
+trolltweets2 <- trolltweets %>%
+  filter(!word %in% c('t.co', 'https'))
+
+# Do a word count for the word cloud
+
+trolltweets3 <- trolltweets2 %>%
+  count(word, sort = TRUE)
+
+trolltweets3
+  
+# This generates the Word Cloud using WordCloud2 library
+wordcloud2(trolltweets3, size=0.7)
+
+```
+
+# need to clean and process further 
