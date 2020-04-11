@@ -1,0 +1,100 @@
+---
+title: "covid_datacollection"
+author: "Arushi Saxena"
+date: "4/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#install.packages("rvest")
+#install.packages("tidytext")
+#install_github("lchiffon/wordcloud2")
+#install.packages("wordcloud2")
+#install.packages("Rcpp")
+#install.packages("rjson")
+#install.packages("httpuv")
+#install.packages("revgeo")
+library(Rcpp)
+library(dplyr)
+library(ggplot2)
+library(reprex)
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(gt)
+library(rvest)
+library(stringr)
+library(shiny)
+library(rvest)
+library(lubridate)
+library(hms)
+require(devtools)
+library(tidytext)
+library(rtweet)
+library(rjson)
+library(jsonlite)
+library(httpuv)
+library(maps)
+library(ggthemes)
+library(revgeo)
+```
+
+# Scraping Twitter Data directly
+```{r Twitter random scrape}
+## search for 15000 tweets using the #socialdistancing hashtag https://rtweet.info/
+
+## store api keys
+api_key <- "5SP9pW4kckAMgSz1FD8htZssO"
+api_secret_key <-"TJZkjzhc53piCXreADGSEDkz9tYACsWNExu7kXiGZxGCLaUFHd"
+
+## authenticate via web browser
+token <- create_token(
+  app = "GOV1005 - Twitter & COVID-19",
+  consumer_key = api_key,
+  consumer_secret = api_secret_key)
+
+get_token()
+
+rt <- search_tweets(
+  "#socialdistancing", n = 15000, include_rts = FALSE
+)
+
+rt <- search_tweets(
+  "#socialdistancing", geocode = lookup_coords("usa"), n = 10000)
+```
+
+```{r Tweet gelocation mapping attempt 1}
+## create lat/lng variables using all available tweet and profile geo-location data
+rt2 <- lat_lng(rt)
+
+glimpse(rt2)
+
+## plot state boundaries
+par(mar = c(0, 0, 0, 0))
+map <- maps::map("state", lwd = 1) %>%
+with(rt2, points(lng, lat, pch = 20, cex = 5, col = rgb(0, .3, .7, .75)))
+
+# create basemap of the globe (Source: https://www.earthdatascience.org/courses/earth-analytics/get-data-using-apis/map-tweet-locations-over-time-r/)
+
+world_basemap <- ggplot() +
+  borders("world", colour = "gray85", fill = "gray80") + theme_map()
+
+world_basemap
+
+tweet_locations <- rt2 %>%
+  select(lat,lng) %>%
+    na.omit()
+
+world_basemap +
+  geom_point(data = tweet_locations, aes(x = lng, y = lat),
+             colour = 'purple', alpha = .5) +
+  scale_size_continuous(range = c(1, 8),
+                        breaks = c(250, 500, 750, 1000)) 
+
+```
+
+```{r Tweet gelocation mapping attempt 2}
+
+```
+
