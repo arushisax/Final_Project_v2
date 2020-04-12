@@ -17,6 +17,9 @@ knitr::opts_chunk$set(echo = TRUE)
 #install.packages("revgeo") #for reverse geocoding tweet location
 #install.packages("mgsub") #to clean location data and replace strings
 #install.packages("AlphaPart") #to turn tweets df into excel file
+#installed.packages("SnowballC") #textmining
+#installed.packages("tm")  #textmining
+#installed.packages("syuzhet") #sentiment analysis
 
 library(Rcpp)
 library(dplyr)
@@ -44,6 +47,9 @@ library(revgeo)
 library(mgsub)
 library(devtools)
 library(twitteR)
+library(SnowballC)
+library(tm)
+library(syuzhet)
 
 ```
 
@@ -69,10 +75,17 @@ rt_041220 <- search_tweets(
 
 #Turn tweets into a dataframe
 tweets_0412 <-as.data.frame(rt_041220)
+tweets_0412
+
+#Write dataframe into an RDS for later analysis
+saveRDS(tweets_0412, file = "tweets_0412.rds")
+tweets_0412_v2 <- readRDS(file = "tweets_0412.rds")
 
 #Write dataframe into a CSV for analysis
-write.csv(tweets_0412,'tweets_0412.csv')
+write_as_csv(tweets_0412, "tweets_0412_v2.csv", prepend_ids = TRUE, na = "", fileEncoding = "UTF-8")
 
+#Read in the Twitter CSV to analyze
+tweets <- read_csv("raw-data/tweets_0412_v2.csv")
 
 #Other query - DID NOT USE
 rt <- search_tweets(
@@ -95,11 +108,13 @@ searchTwitter('social distancing', since='2020-03-25', until='2020-03-28', n=250
 
 
 ```{r Tweet gelocation mapping attempt 1 - Rtweet}
-## create lat/lng variables using all available tweet and profile geo-location data
-rt2 <- lat_lng(rt)
-tweets_0412_loc <-lat_lng(tweets_0412)
+## create lat/lng variables using all available tweet and profile geo-location data. Cannot use excel file for this must use twitter dataframe or RDS due because they retain character types
 
-glimpse(rt2)
+rt2 <- lat_lng(rt)
+test3 <- lat_lng(tweets_0412_v2)
+
+
+glimpse(test3)
 
 ## plot state boundaries
 par(mar = c(0, 0, 0, 0))
@@ -117,8 +132,13 @@ tweet_locations <- rt2 %>%
   select(lat,lng) %>%
     na.omit()
 
+tweet_locations3 <- test3 %>%
+  select(lat,lng) %>%
+    na.omit()
+
+
 world_basemap +
-  geom_point(data = tweet_locations, aes(x = lng, y = lat),
+  geom_point(data = tweet_locations3, aes(x = lng, y = lat),
              colour = 'purple', alpha = .5) +
   scale_size_continuous(range = c(1, 8),
                         breaks = c(250, 500, 750, 1000)) 
@@ -162,6 +182,22 @@ length(geocode_results)
 ```
 
 ```{r Tweet Sentiment Analysis}
+#Text contains a lot of URLs, hashtags and other twitter handles. We will remove all these using the gsub function.
 
+#Convert original RDS into data for sentiment analysis
+senti <- tweets_0412_v2
+
+head(senti$text)
+senti <- gsub("http.*","",senti$text)
+senti <- gsub("https.*","",senti)
+senti <- gsub("#.*","",senti)
+senti <- gsub("@.*","",senti)
+
+#Getting sentiment defining words
+word <- as.vector(senti)
+emotion <- get_nrc_sentiment(word)
+emotion2 <- cbind(senti, emotion) 
+
+head(emotion2)
 ```
 
