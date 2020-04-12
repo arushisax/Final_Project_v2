@@ -14,7 +14,10 @@ knitr::opts_chunk$set(echo = TRUE)
 #install.packages("Rcpp")
 #install.packages("rjson")
 #install.packages("httpuv")
-#install.packages("revgeo")
+#install.packages("revgeo") #for reverse geocoding tweet location
+#install.packages("mgsub") #to clean location data and replace strings
+#install.packages("AlphaPart") #to turn tweets df into excel file
+
 library(Rcpp)
 library(dplyr)
 library(ggplot2)
@@ -38,17 +41,21 @@ library(httpuv)
 library(maps)
 library(ggthemes)
 library(revgeo)
+library(mgsub)
+library(devtools)
+library(twitteR)
+
 ```
 
 # Scraping Twitter Data directly
-```{r Twitter random scrape}
+```{r Twitter random scrape using Rtweet}
 ## search for 15000 tweets using the #socialdistancing hashtag https://rtweet.info/
 
 ## store api keys
 api_key <- "5SP9pW4kckAMgSz1FD8htZssO"
 api_secret_key <-"TJZkjzhc53piCXreADGSEDkz9tYACsWNExu7kXiGZxGCLaUFHd"
 
-## authenticate via web browser
+## authenticate via web browser for rtweet
 token <- create_token(
   app = "GOV1005 - Twitter & COVID-19",
   consumer_key = api_key,
@@ -56,17 +63,41 @@ token <- create_token(
 
 get_token()
 
-rt <- search_tweets(
-  "#socialdistancing", n = 15000, include_rts = FALSE
+rt_041220 <- search_tweets(
+  "social distancing", n = 18000, include_rts = FALSE, geocode = lookup_coords("usa"), retryonratelimit = TRUE
 )
 
+#Turn tweets into a dataframe
+tweets_0412 <-as.data.frame(rt_041220)
+
+#Write dataframe into a CSV for analysis
+write.csv(tweets_0412,'tweets_0412.csv')
+
+
+#Other query - DID NOT USE
 rt <- search_tweets(
   "#socialdistancing", geocode = lookup_coords("usa"), n = 10000)
 ```
 
-```{r Tweet gelocation mapping attempt 1}
+```{r setup using TwitteR}
+api_key <- "5SP9pW4kckAMgSz1FD8htZssO"
+ 
+api_secret <- "TJZkjzhc53piCXreADGSEDkz9tYACsWNExu7kXiGZxGCLaUFHd"
+ 
+access_token <-"790715299-NrNEPZWNIazaLJ4ZkZOJqfNARzmLPMmetV46DLoe"
+ 
+access_token_secret <-"lcxRlQAjKl4XUzhnWfukzGD5MPnotKbM6V3jkbQBCD4Jh"
+ 
+setup_twitter_oauth(api_key,api_secret, access_token,access_token_secret)
+
+searchTwitter('social distancing', since='2020-03-25', until='2020-03-28', n=25000)
+```
+
+
+```{r Tweet gelocation mapping attempt 1 - Rtweet}
 ## create lat/lng variables using all available tweet and profile geo-location data
 rt2 <- lat_lng(rt)
+tweets_0412_loc <-lat_lng(tweets_0412)
 
 glimpse(rt2)
 
@@ -95,6 +126,42 @@ world_basemap +
 ```
 
 ```{r Tweet gelocation mapping attempt 2}
+
+#Clean Location Data: remove  blank locations and replace all % with blank so that geocode() will work https://www.r-bloggers.com/mapping-twitter-followers-in-r/
+
+head(rt2$location, 10)
+
+rt3 <- rt2 %>%
+  filter(location !="") %>%
+  mutate(location2 = str_replace_all(location,"%"," "))
+
+tweets_0412_v2 <- tweets_0412 %>%
+  filter(location !="") %>%
+  mutate(location2 = str_replace_all(location,"%"," "))
+
+
+#Install key package helpers:
+source("https://raw.githubusercontent.com/LucasPuente/geocoding/master/geocode_helpers.R")
+#Install modified version of the geocode function
+#(that now includes the api_key parameter):
+source("https://raw.githubusercontent.com/LucasPuente/geocoding/master/modified_geocode.R")
+
+geocode_apply<-function(x){
+  geocode(x, source = "google", output = "all", api_key="AIzaSyCikMlMJLBSRbEr2-zH1lRkyqmrNJ_FjuE")
+}
+
+
+geocode_results_0412<-sapply(tweets_0412_v2$location2, geocode_apply, simplify = F)
+
+geocode_results_0412
+
+condition_a <- sapply(geocode_results, function(x) x["status"]=="OK")
+geocode_results<-geocode_results[condition_a]
+
+length(geocode_results)
+```
+
+```{r Tweet Sentiment Analysis}
 
 ```
 

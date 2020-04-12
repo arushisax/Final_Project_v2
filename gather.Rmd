@@ -12,6 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 #install_github("lchiffon/wordcloud2")
 #install.packages("wordcloud2")
 #install.packages("Rcpp")
+#install.packages("rjson")
+#install.packages("twitteR")
 library(Rcpp)
 library(dplyr)
 library(ggplot2)
@@ -28,8 +30,10 @@ library(lubridate)
 library(hms)
 require(devtools)
 library(tidytext)
-library(wordcloud2)
-
+library(rtweet)
+library(rjson)
+library(jsonlite)
+library(twitteR)
 ```
 
 ```{r save this file locally, echo=FALSE, include=FALSE}
@@ -101,4 +105,36 @@ wordcloud2(trolltweets3, size=0.7)
 
 ```
 
-# need to clean and process further 
+# Scraping Twitter Data directly
+```{r}
+## search for 1000 tweets using the #socialdistancing hashtag https://rtweet.info/
+
+rt <- search_tweets(
+  "#socialdistancing", n = 15000, include_rts = FALSE
+)
+
+rt
+
+rt2 <- stream_tweets("")
+```
+
+```{r downloading json zip file}
+# https://www.stat.berkeley.edu/~paciorek/computingTips/Reading_gzipped_bzipped_zip.html
+
+
+gunzip("data.json.gz", remove=FALSE)
+us2 <- jsonlite::fromJSON("data.json")
+us2
+```
+
+```{r Twitter authentication set up}
+consumer_key <- '5SP9pW4kckAMgSz1FD8htZssO'
+consumer_secret <- 'TJZkjzhc53piCXreADGSEDkz9tYACsWNExu7kXiGZxGCLaUFHd'
+access_token <-'790715299-jSaOQZohj6OvFVoXGeXMg61i1lAqAzLkOq9SL1Gi'
+access_secret <-'awcZ4arCLIg56RJ8PrU87CzbKZKF8as836MzWuJuVR9UX'
+
+setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
+2
+```
+
+
