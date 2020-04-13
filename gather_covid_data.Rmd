@@ -187,6 +187,8 @@ length(geocode_results)
 #Convert original RDS into data for sentiment analysis
 senti <- tweets_0412_v2
 
+senti
+
 head(senti$text)
 senti <- gsub("http.*","",senti$text)
 senti <- gsub("https.*","",senti)
@@ -199,5 +201,26 @@ emotion <- get_nrc_sentiment(word)
 emotion2 <- cbind(senti, emotion) 
 
 head(emotion2)
+
+#Getting most positive sentiment
+sent.value <- get_sentiment(word)
+most.positive <- word[sent.value == max(sent.value)]
+most.positive
+
+#Getting most negative sentiment
+most.negative <- word[sent.value <= min(sent.value)] 
+most.negative 
+
+#Make a tibble of scores by Twitter row ID
+sent.value
+
+sentiment_scores <- tibble(manual_id = rep(1:18000),sent.value) 
+
+#Add Twitter Row IDs to original df
+twitter_sentiment_table <- tweets_0412_v2 %>%
+  mutate(manual_id1 = rep(1:18000)) %>%
+  select(manual_id1,text,country,geo_coords,coords_coords,bbox_coords,location)
+
+#Join sentiment score to the Twitter Sentiment Table on manual_id
 ```
 
