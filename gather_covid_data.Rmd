@@ -186,8 +186,7 @@ length(geocode_results)
 
 #Convert original RDS into data for sentiment analysis
 senti <- tweets_0412_v2
-
-senti
+head(senti)
 
 head(senti$text)
 senti <- gsub("http.*","",senti$text)
@@ -218,9 +217,34 @@ sentiment_scores <- tibble(manual_id = rep(1:18000),sent.value)
 
 #Add Twitter Row IDs to original df
 twitter_sentiment_table <- tweets_0412_v2 %>%
-  mutate(manual_id1 = rep(1:18000)) %>%
-  select(manual_id1,text,country,geo_coords,coords_coords,bbox_coords,location)
+  mutate(manual_id = rep(1:18000)) %>%
+  select(manual_id,text,country,geo_coords,coords_coords,bbox_coords,location)
 
 #Join sentiment score to the Twitter Sentiment Table on manual_id
+
+twitter_sentiment_table2 <- left_join(twitter_sentiment_table, sentiment_scores, by = "manual_id")
+
+head(twitter_sentiment_table2)
+
+#Make a US heatmap of the sentiment scores
+senti_locations <- lat_lng(twitter_sentiment_table2)
+
+## plot state boundaries
+par(mar = c(0, 0, 0, 0))
+map <- maps::map("state", lwd = 1) %>%
+with(senti_locations, points(lng, lat, pch = 20, cex = 5, col = rgb(0, .3, .7, .75)))
+
+# create basemap of the globe (Source: https://www.earthdatascience.org/courses/earth-analytics/get-data-using-apis/map-tweet-locations-over-time-r/)
+
+world_basemap <- ggplot() +
+  borders("world", colour = "gray85", fill = "gray80") + theme_map()
+
+#plot data onto world map
+world_basemap +
+  geom_point(data = senti_locations, aes(x = lng, y = lat, fill = sent.value),
+             , alpha = .5) +
+  scale_size_continuous(range = c(1, 8),
+                        breaks = c(250, 500, 750, 1000)) 
+
 ```
 
