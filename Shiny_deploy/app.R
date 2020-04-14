@@ -59,15 +59,34 @@ ui <-   shinyUI(
                      
                      # this page includes the world cloud and sentiment analysis of specific words found throughout the tweets 
                      
-                     tabPanel("Tweet Distribution",
+                     tabPanel("Word Cloud",
                               
                               h3("Selected English-language Tweets about Social Distancing (April 2020)"),
                               
                               br(),
                               
-                              h4("Prominent Expressions about Social Distancing"))))
+                              h4("Prominent Expressions about Social Distancing")),
+                     
+                     tabPanel("Sentiment Analysis",
+                              
+                              h3("Positive vs. Negative Sentiments for Selected Themes"),
+                              
+                              br(),
+                              
+                              h4("[ ] "))
+                     
+                     
+                     )),
         
+        #this tab shows the interactive maps 
         
+        tabPanel("Geographic Analysis",
+                 
+                 h3("How positive, negative, or neutral is sentiment across the United States?"),
+                 
+                 br(),
+                 
+                 h4("[Insert summary sentence here]"))  
         
         
         )
