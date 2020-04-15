@@ -8,6 +8,17 @@ library(DT)
 library(leaflet)
 library(ggthemes)
 library(shinythemes)
+library(leaflet.extras)
+
+#Import sentiment data for US map: https://medium.com/@joyplumeri/how-to-make-interactive-maps-in-r-shiny-brief-tutorial-c2e1ef0447da
+us_senti <- us_senti_locations
+
+glimpse(us_senti)
+
+#categorize sentiment values
+us_senti$sent_type <- ifelse(us_senti$sent.value < 0, "Negative", 
+                                    ifelse(us_senti$sent.value == 0, "Neutral", 
+                                           ifelse(us_senti$sent.value > 0, "Positive", "other")))
 
 # Define UI for application that draws a histogram
 ui <-   shinyUI(
@@ -86,8 +97,16 @@ ui <-   shinyUI(
                  
                  br(),
                  
-                 h4("[Insert summary sentence here]"))  
+                 h4("[Insert summary sentence here]"),
         
+             mainPanel( 
+                #this will create a space for us to display our map
+                leafletOutput(outputId = "mymap"), 
+                #this allows me to put the checkmarks ontop of the map to allow people to view earthquake depth or overlay a heatmap
+                absolutePanel(top = 60, left = 20, 
+                          checkboxInput("markers", "Depth", FALSE),
+                          checkboxInput("heat", "Heatmap", FALSE)
+            )))
         
         )
     )
@@ -97,7 +116,13 @@ ui <-   shinyUI(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
     
-    
+    #create the map
+    output$mymap <- renderLeaflet({
+        leaflet(us_senti) %>% 
+            setView(lng = -99, lat = 45, zoom = 2)  %>% #setting the view over ~ center of North America
+            addTiles() %>% 
+            addCircles(data = us_senti, lat = ~ lat, lng = ~ lng, weight = 1,popup = ~as.character(sent_type), label = ~as.character(paste0("Sentiment: ", sep = " ", sent_type)), fillOpacity = 0.5)
+    })
 }
 
 # Run the application 
