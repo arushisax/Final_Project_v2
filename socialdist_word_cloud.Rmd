@@ -1,0 +1,56 @@
+---
+title: "word_cloud"
+author: "Arushi Saxena"
+date: "4/15/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("twitteR")
+library("textmineR")
+#install.packages("RWeka")
+#install.packages("tm")
+library("RWeka")
+library("tm")
+```
+
+```{r}
+# Source: https://towardsdatascience.com/how-did-twitter-react-to-the-coronavirus-pandemic-2857592b449a
+# Create main df for word cloud analysis
+wc_df <- tweets_0412_v2
+
+# Change dataset into a corpus
+data_corp <- VCorpus(VectorSource(wc_df)) 
+wc_df[which(is.na(wc_df))] <- "NULLVALUEENTERED"
+
+#Data pre-processing
+data_corp <- tm_map(data_corp, tolower)
+data_corp <- tm_map(data_corp, PlainTextDocument)
+data_corp <- tm_map(data_corp, removePunctuation)
+
+for (i in seq(data_corp)) {
+  data_corp[[i]] <- gsub('[^a-zA-Z|[:blank:]]', "", data_corp[[i]])
+}
+
+# Remove stop words
+new_stops <-c("covid","iphone","coronavirus","hrefhttptwittercomdownloadandroid","relnofollowtwitter","androida","hrefhttptwittercomdownloadiphone","relnofollowtwitter","iphonea","web","rt","chuonlinenews","hrefhttpsmobiletwittercom","hrefhttptwittercomdownloadipad","bharianmy","lebih","berbanding","dijangkiti","kumpulan","mudah","terdedah","covidhttpstcoigdxdtmvrg","hrefhttpsabouttwittercomproductstweetdeck", "darah","httpspbstwimgcomprofilebanners","httpabstwimgcomimagesthemesthemebgpng","httpabstwimgcomimagesthemesthemebggif","also")
+data_corp <- tm_map(data_corp, removeWords, words = c(stopwords("English"), new_stops))
+data_corp <- tm_map(data_corp, stripWhitespace)
+data_corp <- tm_map(data_corp, PlainTextDocument)
+
+# Used different source here: https://shiny.rstudio.com/gallery/word-cloud.html 
+
+myDTM = TermDocumentMatrix(data_corp,
+              control = list(minWordLength = 1))
+  
+  m = as.matrix(myDTM)
+  
+  data_cleaned <- sort(rowSums(m), decreasing = TRUE)
+  
+  data_cleaned 
+  myDTM
+
+# data_cleaned_freq <- rowSums(data_cleaned_tdm_m)
+```
+

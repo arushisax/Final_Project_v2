@@ -9,16 +9,21 @@ library(leaflet)
 library(ggthemes)
 library(shinythemes)
 library(leaflet.extras)
+library(tm)
+library(wordcloud2)
 
-#Import sentiment data for US map: https://medium.com/@joyplumeri/how-to-make-interactive-maps-in-r-shiny-brief-tutorial-c2e1ef0447da
+# Import sentiment data for US map: https://medium.com/@joyplumeri/how-to-make-interactive-maps-in-r-shiny-brief-tutorial-c2e1ef0447da
 us_senti <- us_senti_locations
 
-glimpse(us_senti)
-
-#categorize sentiment values
+# Categorize sentiment values
 us_senti$sent_type <- ifelse(us_senti$sent.value < 0, "Negative", 
                                     ifelse(us_senti$sent.value == 0, "Neutral", 
                                            ifelse(us_senti$sent.value > 0, "Positive", "other")))
+# Set Colors for each sentiment value
+pal <- colorFactor(
+    palette = c('red', 'blue', 'green'),
+    domain = us_senti$sent_type
+)
 
 # Define UI for application that draws a histogram
 ui <-   shinyUI(
@@ -76,7 +81,20 @@ ui <-   shinyUI(
                               
                               br(),
                               
-                              h4("Prominent Expressions about Social Distancing")),
+                              h4("Prominent Expressions about Social Distancing"),
+                              
+                              sidebarLayout(
+                                  sidebarPanel(sliderInput("freq",
+                                                         "Minimum Frequency:",
+                                                         min = 1,  max = 50, value = 15),
+                                                        sliderInput("max",
+                                                         "Maximum Number of Words:",
+                                                         min = 1,  max = 200,  value = 100)),
+                              # Show Word Cloud
+                              mainPanel(
+                                  plotOutput("plot")))),
+                              
+                            
                      
                      tabPanel("Sentiment Analysis",
                               
@@ -116,13 +134,26 @@ ui <-   shinyUI(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
     
+    # Make the Word Cloud
+    output$plot <- renderPlot({
+        wordcloud(names(data_cleaned), data_cleaned, scale=c(10,0.5),
+                     min.freq = input$freq, max.words=input$max,
+                     colors=brewer.pal(8, "Dark2"))
+    })
+    
     #create the map
     output$mymap <- renderLeaflet({
         leaflet(us_senti) %>% 
             setView(lng = -99, lat = 45, zoom = 2)  %>% #setting the view over ~ center of North America
             addTiles() %>% 
-            addCircles(data = us_senti, lat = ~ lat, lng = ~ lng, weight = 1,popup = ~as.character(sent_type), label = ~as.character(paste0("Sentiment: ", sep = " ", sent_type)), fillOpacity = 0.5)
+            addCircles(data = us_senti, lat = ~ lat, lng = ~ lng, weight = 5, 
+                       popup = paste("Sentiment:",sep = " ",us_senti$sent_type, "<br>",
+                                     "Sentiment Score:", us_senti$sent.value, "<br>",
+                                     "Text:", us_senti$text, "<br>"),
+                       label = ~as.character(paste0(sent_type)), 
+                       fillOpacity = 0.5, color = ~pal(sent_type), radius = 5)
     })
+    
 }
 
 # Run the application 
