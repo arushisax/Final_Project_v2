@@ -1,0 +1,37 @@
+---
+title: "state_correlations"
+author: "Arushi Saxena"
+date: "4/20/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(reprex)
+library(gt)
+library(infer)
+library(purrr)
+library(skimr)
+library(broom)
+```
+
+```{r} 
+# Read in the google search term popularity by state (from 3/11/20 - 3/29/20)
+
+all_searches <- read_csv("raw-data/google_search_geo.csv",col_types = cols())
+all_searches
+socialdistance_march
+
+# Quick data exploration to see distribution of social distancing scores by state
+summary(socialdistance_march)
+socialdistance_march %>%
+  ggplot(aes(x=average)) + geom_histogram()
+
+# I am going to make four sub-tables of the google searches to run regression. One table for each term and fourth table is the average searches across all three terms. 
+
+# Add Washington DC data manually from another source because it was missing in this web scraping
+```
+
