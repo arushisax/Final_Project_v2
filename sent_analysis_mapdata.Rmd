@@ -17,6 +17,7 @@ library(maps)
 library(ggthemes)
 library(revgeo)
 library(mgsub)
+library(lubridate)
 ```
 
 
@@ -50,14 +51,19 @@ most.negative <- word[sent.value <= min(sent.value)]
 most.negative 
 
 #Make a tibble of scores by Twitter row ID
+senti
 sent.value
 
 sentiment_scores <- tibble(manual_id = rep(1:18000),sent.value) 
+
+sentiment_scores
 
 #Add Twitter Row IDs to original df
 twitter_sentiment_table <- tweets_0412_v2 %>%
   mutate(manual_id = rep(1:18000)) %>%
   select(manual_id,text,country,geo_coords,coords_coords,bbox_coords,location)
+
+twitter_sentiment_table
 
 #Join sentiment score to the Twitter Sentiment Table on manual_id
 
@@ -97,7 +103,19 @@ us_senti_locations
 us2 %>%
   distinct(state,county,.keep_all = TRUE)
 
+us2 %>%
+group_by(state) %>%
+  summarize(average = mean(changecalc)) %>%
+  arrange(average)
 
+us2 %>%
+  filter(state=="Hawaii") 
+ 
+us2_march <- us2 %>%
+  mutate(date_formatted = ymd(date)) %>%
+  filter(date_formatted >= "2020-03-11")
+
+us2_march
 
 ```
 
