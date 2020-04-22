@@ -92,7 +92,7 @@ world_basemap +
                         breaks = c(250, 500, 750, 1000)) 
 
 
-# This assume that people are tweeting from where they live, but might not always be the case
+# This assumes that people are tweeting from where they live, but might not always be the case
   
 us_senti_locations <- senti_locations %>%
   filter(lat != "" & lng !="") %>%
@@ -100,22 +100,20 @@ us_senti_locations <- senti_locations %>%
 
 us_senti_locations
 
+#Prepping the US social distancing data for the heat map
 us2 %>%
   distinct(state,county,.keep_all = TRUE)
 
-us2 %>%
-group_by(state) %>%
-  summarize(average = mean(changecalc)) %>%
-  arrange(average)
+#Only look at social distancing data after 3/11 (COVID-19 declared as pandemic) and average the values accross counties and categories to get an average state level view.
 
-us2 %>%
-  filter(state=="Hawaii") 
- 
-us2_march <- us2 %>%
+# Add Washington DC data manually from another source because it was missing in this web scraping
+
+socialdistance_march <- us2 %>%
   mutate(date_formatted = ymd(date)) %>%
-  filter(date_formatted >= "2020-03-11")
-
-us2_march
-
+  filter(date_formatted >= "2020-03-11") %>%
+  group_by(state) %>%
+  summarize(average = mean(value)) %>%
+  arrange(average) %>%
+  add_row(state = "District of Columbia", average = "-17.259")
 ```
 
