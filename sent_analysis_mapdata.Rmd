@@ -112,8 +112,13 @@ socialdistance_march <- us2 %>%
   mutate(date_formatted = ymd(date)) %>%
   filter(date_formatted >= "2020-03-11") %>%
   group_by(state) %>%
-  summarize(average = mean(value)) %>%
+  summarize(average = round(mean(value),digits = 1)) %>% 
+  transform(average = as.numeric(average)) %>%
   arrange(average) %>%
-  add_row(state = "District of Columbia", average = "-17.259")
+  add_row(state = "District of Columbia", average = "-17.3")
+
+# Convert Average column to a numeric column
+socialdistance_march_F <- transform(socialdistance_march, average = as.numeric(average)) 
+socialdistance_march_F
 ```
 
