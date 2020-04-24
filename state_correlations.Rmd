@@ -17,7 +17,7 @@ library(purrr)
 library(skimr)
 library(broom)
 install.packages("ggpubr")
-library(ggpubr)
+library(ggpubr) #To show correlation coefficient on the plots 
 ```
 
 ```{r} 

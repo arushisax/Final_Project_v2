@@ -10,7 +10,10 @@ library(ggthemes)
 library(shinythemes)
 library(leaflet.extras)
 library(tm)
+library(wordcloud)
+require(devtools)
 library(wordcloud2)
+library(ggpubr)
 
 # Import sentiment data for US map: https://medium.com/@joyplumeri/how-to-make-interactive-maps-in-r-shiny-brief-tutorial-c2e1ef0447da
 us_senti <- us_senti_locations
@@ -24,6 +27,10 @@ pal <- colorFactor(
     palette = c('red', 'blue', 'green'),
     domain = us_senti$sent_type
 )
+
+####### For Google Search analysis tab
+# Load google search trends vs. social distancing table
+scatterdata <- joined_data
 
 # Define UI for application that draws a histogram
 ui <-   shinyUI(
@@ -124,7 +131,34 @@ ui <-   shinyUI(
                 absolutePanel(top = 60, left = 20, 
                           checkboxInput("markers", "Depth", FALSE),
                           checkboxInput("heat", "Heatmap", FALSE)
-            )))
+            ))),
+        
+        tabPanel("Google Search Trends",
+                 
+                 h3("Does adherence to social distancing measures correlate with Google search activity across the United States?"),
+                 
+                 br(),
+                 
+                 h4("[Insert summary sentence here]"),
+                 
+                 sidebarPanel(
+                     helpText("Choose a Google search term to understand its search popularity vs. actual social distancing within each US state"),
+                     tags$i("Note: The more negative the Social Distancing score, the greater a state's adherence to social distancing (ex: -10 means more distancing than -5)."),
+                     br(),
+                     
+                     selectInput("term", "Google Search Term:",
+                                 choices = list("coronavirus" = "coronavirus",
+                                                "COVID-19" = "COVID-19",
+                                                "social distancing" = "social distancing",
+                                                "All of the above" = "all_terms"
+                                               ),
+                                 selected = "coronavirus")),
+                 
+                 mainPanel(plotOutput("scatterplot"))
+                 
+              
+                 )
+        
         
         )
     )
@@ -136,7 +170,7 @@ server <- function(input, output) {
     
     # Make the Word Cloud
     output$plot <- renderPlot({
-        wordcloud(names(data_cleaned), data_cleaned, scale=c(10,0.5),
+        wordcloud(names(data_cleaned), data_cleaned,scale=c(8,0.25),
                      min.freq = input$freq, max.words=input$max,
                      colors=brewer.pal(8, "Dark2"))
     })
@@ -153,6 +187,30 @@ server <- function(input, output) {
                        label = ~as.character(paste0(sent_type)), 
                        fillOpacity = 0.5, color = ~pal(sent_type), radius = 5)
     })
+    
+    #Scatterplot with reactive data
+
+    output$scatterplot <- renderPlot({
+        
+        if(input$term == "coronavirus"){            
+            scatterdata %>% 
+                ggplot(aes(x=average, y=`coronavirus`)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'Coronavirus'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson")
+        }
+        else if(input$term == "COVID-19"){
+            scatterdata %>% 
+                ggplot(aes(x=average, y=`COVID-19`)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'COVID-19'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson")
+        }
+        else if(input$term == "social distancing"){
+            scatterdata %>% 
+            ggplot(aes(x=average, y=`social distancing`)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'Social Distancing'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson")
+         }
+        else if(input$term == "all_terms"){
+            scatterdata %>% 
+                ggplot(aes(x=average, y=all_terms)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Avg. Search Popularity of COVID-19-related terms") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson")
+        }
+    
+    })
+    
     
 }
 
