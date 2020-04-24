@@ -16,6 +16,8 @@ library(infer)
 library(purrr)
 library(skimr)
 library(broom)
+install.packages("ggpubr")
+library(ggpubr)
 ```
 
 ```{r} 
@@ -23,15 +25,45 @@ library(broom)
 
 all_searches <- read_csv("raw-data/google_search_geo.csv",col_types = cols())
 all_searches
-socialdistance_march
+socialdistance_march_F
 
 # Quick data exploration to see distribution of social distancing scores by state
-summary(socialdistance_march)
-socialdistance_march %>%
+summary(socialdistance_march_F)
+socialdistance_march_F %>%
   ggplot(aes(x=average)) + geom_histogram()
 
-# I am going to make four sub-tables of the google searches to run regression. One table for each term and fourth table is the average searches across all three terms. 
+#Need to pivot wider the search data so we can join it with social distancing data and do a scatterplot by state 
 
-# Add Washington DC data manually from another source because it was missing in this web scraping
+all_searches2 <- all_searches %>%
+  pivot_wider(names_from = term, values_from = search_term_popularity)
+
+# Inner join the social distancing data with the google search data
+
+joined_data <- all_searches2 %>%
+  inner_join(socialdistance_march_F, by = c("State" = "state"))
+
+coronavirus <- joined_data %>%
+  ggplot(aes(x=average, y=`coronavirus`)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'Coronavirus'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson")
+
+covid <- joined_data %>%
+  ggplot(aes(x=average, y=`COVID-19`)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'Coronavirus'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson")
+
+social_dist <- joined_data %>%
+  ggplot(aes(x=average, y=`social distancing`)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'Coronavirus'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson")
+
+all_terms <- joined_data %>%
+  ggplot(aes(x=average, y=`all_terms`)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'Coronavirus'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson")
+
+
+
+###### These are the charts with state being colored
+joined_data %>%
+  ggplot(aes(x=average, y=`COVID-19`,color=State)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'COVID-19'") + scale_x_reverse() + geom_smooth(method = "lm", se = FALSE, color = "black")
+
+joined_data %>%
+  ggplot(aes(x=average, y=`social distancing`, color=State)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'Social Distancing'") + scale_x_reverse() + stat_smooth(method = "lm", se = FALSE, color = "black")
+
+joined_data %>%
+  ggplot(aes(x=average, y=all_terms, color=State)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Avg. Search Popularity of COVID-19-related terms") + scale_x_reverse() + stat_smooth(method = "lm", se = FALSE, color = "black") 
 ```
 
