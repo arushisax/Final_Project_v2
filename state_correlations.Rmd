@@ -16,7 +16,6 @@ library(infer)
 library(purrr)
 library(skimr)
 library(broom)
-install.packages("ggpubr")
 library(ggpubr) #To show correlation coefficient on the plots 
 ```
 
@@ -42,28 +41,20 @@ all_searches2 <- all_searches %>%
 joined_data <- all_searches2 %>%
   inner_join(socialdistance_march_F, by = c("State" = "state"))
 
-coronavirus <- joined_data %>%
-  ggplot(aes(x=average, y=`coronavirus`)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'Coronavirus'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson")
+# Make a table with state abbreviations to join with consolidated data. Will plot the state names on my scatterplot
 
-covid <- joined_data %>%
-  ggplot(aes(x=average, y=`COVID-19`)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'Coronavirus'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson")
+state_info <- tibble(StateName=state.name, Abb=state.abb) %>%
+  add_row(StateName = "District of Columbia", Abb = "DC")
 
-social_dist <- joined_data %>%
-  ggplot(aes(x=average, y=`social distancing`)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'Coronavirus'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson")
+# Join the state_info with consolidated data. I'll actually make the scatterplots in my app.R page
 
-all_terms <- joined_data %>%
-  ggplot(aes(x=average, y=`all_terms`)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'Coronavirus'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson")
+joined_dataF <- joined_data %>%
+  left_join (state_info, by = c("State" = "StateName"))
 
+# Test plotting of the scatterplot
 
+coronavirus <- joined_dataF %>%
+  ggplot(aes(x=average, y=`coronavirus`, label=Abb)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'Coronavirus'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson", label.x = 5, label.y = 110) + geom_text(check_overlap = FALSE, nudge_x = 0.05, nudge_y = 1, size = 3)
 
-###### These are the charts with state being colored
-joined_data %>%
-  ggplot(aes(x=average, y=`COVID-19`,color=State)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'COVID-19'") + scale_x_reverse() + geom_smooth(method = "lm", se = FALSE, color = "black")
-
-joined_data %>%
-  ggplot(aes(x=average, y=`social distancing`, color=State)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'Social Distancing'") + scale_x_reverse() + stat_smooth(method = "lm", se = FALSE, color = "black")
-
-joined_data %>%
-  ggplot(aes(x=average, y=all_terms, color=State)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Avg. Search Popularity of COVID-19-related terms") + scale_x_reverse() + stat_smooth(method = "lm", se = FALSE, color = "black") 
 ```
 

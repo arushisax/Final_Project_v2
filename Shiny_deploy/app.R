@@ -30,7 +30,7 @@ pal <- colorFactor(
 
 ####### For Google Search analysis tab
 # Load google search trends vs. social distancing table
-scatterdata <- joined_data
+scatterdata <- joined_dataF #Save this as a RDS object in the shinyapp folder structure 
 
 # Define UI for application that draws a histogram
 ui <-   shinyUI(
@@ -147,12 +147,12 @@ ui <-   shinyUI(
                      br(),
                      
                      selectInput("term", "Google Search Term:",
-                                 choices = list("coronavirus" = "coronavirus",
-                                                "COVID-19" = "COVID-19",
+                                 choices = list("COVID-19" = "COVID-19",
+                                                "coronavirus" = "coronavirus",
                                                 "social distancing" = "social distancing",
                                                 "All of the above" = "all_terms"
                                                ),
-                                 selected = "coronavirus")),
+                                 selected = "COVID-19")),
                  
                  mainPanel(plotOutput("scatterplot"))
                  
@@ -194,19 +194,19 @@ server <- function(input, output) {
         
         if(input$term == "coronavirus"){            
             scatterdata %>% 
-                ggplot(aes(x=average, y=`coronavirus`)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'Coronavirus'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson")
+                ggplot(aes(x=average, y=`coronavirus`, label=Abb)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'Coronavirus'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson", label.x = 5, label.y = 110) + geom_text(check_overlap = FALSE, nudge_x = 0.05, nudge_y = 1, size = 3)
         }
         else if(input$term == "COVID-19"){
             scatterdata %>% 
-                ggplot(aes(x=average, y=`COVID-19`)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'COVID-19'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson")
+                ggplot(aes(x=average, y=`COVID-19`, label=Abb)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'COVID-19'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson", label.x = 5, label.y = 110) + geom_text(check_overlap = FALSE, nudge_x = 0.05, nudge_y = 2, size = 3)
         }
         else if(input$term == "social distancing"){
             scatterdata %>% 
-            ggplot(aes(x=average, y=`social distancing`)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'Social Distancing'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson")
+            ggplot(aes(x=average, y=`social distancing`, label=Abb)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Search Term Popularity: 'Social Distancing'") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson", label.x = 5, label.y = 110) + geom_text(check_overlap = FALSE, nudge_x = 0.05, nudge_y = 2, size = 3)
          }
         else if(input$term == "all_terms"){
             scatterdata %>% 
-                ggplot(aes(x=average, y=all_terms)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Avg. Search Popularity of COVID-19-related terms") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson")
+                ggplot(aes(x=average, y=all_terms, label=Abb)) + geom_point() +theme_classic() + theme(axis.text.x = element_text(angle = 45)) + labs(x="Social Distancing Score", y="Avg. Search Popularity of COVID-19-related terms") + scale_x_reverse() + geom_smooth(method = "glm", se = FALSE, color = "black") + stat_cor(method="pearson", label.x = 5, label.y = 110) + geom_text(check_overlap = FALSE, nudge_x = 0.05, nudge_y = 2, size = 3)
         }
     
     })
