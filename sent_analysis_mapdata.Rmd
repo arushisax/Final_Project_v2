@@ -98,7 +98,7 @@ us_senti_locations <- senti_locations %>%
   filter(lat != "" & lng !="") %>%
   filter(country == "United States")
 
-us_senti_locations
+saveRDS(us_senti_locations, file = "us_senti_locations.rds")
 
 #Prepping the US social distancing data for the heat map
 us2 %>%

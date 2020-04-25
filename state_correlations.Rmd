@@ -51,6 +51,8 @@ state_info <- tibble(StateName=state.name, Abb=state.abb) %>%
 joined_dataF <- joined_data %>%
   left_join (state_info, by = c("State" = "StateName"))
 
+saveRDS(joined_dataF, file = "joined_dataF.rds")
+
 # Test plotting of the scatterplot
 
 coronavirus <- joined_dataF %>%

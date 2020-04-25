@@ -16,7 +16,8 @@ library(wordcloud2)
 library(ggpubr)
 
 # Import sentiment data for US map: https://medium.com/@joyplumeri/how-to-make-interactive-maps-in-r-shiny-brief-tutorial-c2e1ef0447da
-us_senti <- us_senti_locations
+
+us_senti <- read_rds("us_senti_locations.rds")
 
 # Categorize sentiment values
 us_senti$sent_type <- ifelse(us_senti$sent.value < 0, "Negative", 
@@ -28,9 +29,14 @@ pal <- colorFactor(
     domain = us_senti$sent_type
 )
 
+# Load data for word cloud
+data_cleaned <- read_rds("wordcloud_data.rds")
+
 ####### For Google Search analysis tab
 # Load google search trends vs. social distancing table
-scatterdata <- joined_dataF #Save this as a RDS object in the shinyapp folder structure 
+
+scatterdata <- read_rds("joined_dataF.rds")
+
 
 # Define UI for application that draws a histogram
 ui <-   shinyUI(
@@ -61,7 +67,8 @@ ui <-   shinyUI(
                                             
                                             #text to introduce project
                                             
-                                            p("The purpose of the project is to...."),
+                                            p("The purpose of the project is to understand public sentiment about social distancing by looking at Twitter data and comparing it to other data sets such as Google Search Trends and Google Mobility data.
+                                              I used three different data sets. The first data set was a random sample of 18,000 Tweets from the week of April 12,2019 related to 'social distancing'. The second data set was Google Mobility data by state which demonstrates the average deviance in population movement vs. baseline. The last dataset was the average popularity of certain COVID-19 related search terms by US state."),
                                             
                                             br(),
                                             
@@ -71,11 +78,11 @@ ui <-   shinyUI(
                                             
                                             
                                             
-                                            p("I chose to analyze ...."),
+                                            p("My analysis combines sentiment analysis with correlation analysis. First, I seek to understand the general themes and sentiments demonstrated by the Twitter activity. This is reflective of the social pulse and sentiment about social distancing throughout the United States. Next, I seek to understand how does public sentiment by state compare against each state's actual adherence to Social Distancing measures. Adherence is measured by the Google mobility data. The more negative a state's average score, the more their average movement has decreased versus baseline activity and therefore the more they are social distancing. Lastly, I look to understand the average social distancing score of each and see if correlates with their search activity"),
                                             
                                             span(),
                                             
-                                            p("I coded for...")
+                                            p("I found that there is strong correlation between high social distancing adherence and search activity about those concepts. This leads me to believe that as individuals are forced or inclined to social distance, they want to increase their awareness of the topic. One can also make the reverse claim that as people search more about the topic, they are more likely to social distance. However, I chose social distancing adherence as my indepedent variable, as opposed to the outcome variable, because social distancing is more likely to be an exogenous directive mandated by local and /or state governments. Note that certain states could have differing social distancing scores for a variety of reasons. Firstly, some states have stricter lockdown directives than others (i.e. California). Secondly, other states are less dense and less urban to begin with therefore it is difficult to deviate from baseline activity if baseline activity and movement was already low (i.e. Wyoming). However, it is reasonable to state that as social distancing increases within a US state, the appetite to learn about it also increases.")
                  ))),
         tabPanel("Tweet Analysis",
                  tabsetPanel(
@@ -109,10 +116,21 @@ ui <-   shinyUI(
                               
                               br(),
                               
-                              h4("[ ] "))
+                              sidebarPanel(
+                                    helpText("The first chart demonstrates the sentiment stregnth (polarity) of common words that were found across Tweets related to social distancing. Words with strong positive polarity reflect higher positive number
+                                             and words with strong negative polarity are reflected by high negative numbers.'Virus', 'hard', and 'death' had the strongest negative polarity meanwhile 
+                                             'happy', 'safe', and 'Trump' have the strongest positive connotations in this Twitter data set."
+                                      
+                                  )),
+                              mainPanel(tabsetPanel(
+                                  tabPanel(
+                                        imageOutput("polarity_chart"),
+                                        )
+                            )
+                            )
                      
                      
-                     )),
+                     ))),
         
         #this tab shows the interactive maps 
         
@@ -175,7 +193,18 @@ server <- function(input, output) {
                      colors=brewer.pal(8, "Dark2"))
     })
     
-    #create the map
+    # First Sentiment Analysis Chart (Polarity) 
+    output$polarity_chart <- renderImage({
+        list(
+            src = "polarity_chart.png",
+            contentType = 'image/png',
+            width = 600,
+            height = 600
+        )
+    })
+    
+    
+    # create the map
     output$mymap <- renderLeaflet({
         leaflet(us_senti) %>% 
             setView(lng = -99, lat = 45, zoom = 2)  %>% #setting the view over ~ center of North America

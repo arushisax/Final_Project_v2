@@ -48,9 +48,10 @@ myDTM = TermDocumentMatrix(data_corp,
   
   data_cleaned <- sort(rowSums(m), decreasing = TRUE)
   
-  data_cleaned 
-  myDTM
-
+# Save as RDS so that I can use in shinyapp later
+  
+  saveRDS(data_cleaned, file = "wordcloud_data.rds")
+  
 # data_cleaned_freq <- rowSums(data_cleaned_tdm_m)
 ```
 

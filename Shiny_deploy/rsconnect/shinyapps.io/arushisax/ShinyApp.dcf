@@ -5,8 +5,8 @@ account: arushisax
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2182241
-bundleId: 3062041
+bundleId: 3062165
 url: https://arushisax.shinyapps.io/ShinyApp/
-when: 1587773884.10048
+when: 1587777483.71987
 asMultiple: FALSE
 asStatic: FALSE
