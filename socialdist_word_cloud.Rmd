@@ -52,6 +52,8 @@ myDTM = TermDocumentMatrix(data_corp,
   
   saveRDS(data_cleaned, file = "wordcloud_data.rds")
   
+  data_cleaned
+  
 # data_cleaned_freq <- rowSums(data_cleaned_tdm_m)
 ```
 

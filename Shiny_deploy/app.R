@@ -14,6 +14,8 @@ library(wordcloud)
 require(devtools)
 library(wordcloud2)
 library(ggpubr)
+library(geojsonio)
+library(rgdal)
 
 # Import sentiment data for US map: https://medium.com/@joyplumeri/how-to-make-interactive-maps-in-r-shiny-brief-tutorial-c2e1ef0447da
 
@@ -124,10 +126,23 @@ ui <-   shinyUI(
                                   )),
                               mainPanel(tabsetPanel(
                                   tabPanel(
-                                        imageOutput("polarity_chart"),
+                                        imageOutput("polarity_chart2"),
                                         )
                             )
-                            )
+                            ),
+                                br(),
+                                br(),
+                                br(),
+                               
+                             sidebarPanel(
+                                helpText("This chart shows the frequency of most common positive and negative words in the Social Distancing tweets. 'Virus', 'Hard', 'Death' and 'Risk' were most common negative themes whereas as 'happy', 'safe', 'trump', and 'love' where most commonly used in a positive context. These findings are consistent with the Word Cloud in earlier tab.")),
+                            
+                            mainPanel(tabsetPanel(
+                                    tabPanel(
+                                        imageOutput("freq_chart"),
+                                    ))
+                                    )
+                            
                      
                      
                      ))),
@@ -147,9 +162,19 @@ ui <-   shinyUI(
                 leafletOutput(outputId = "mymap"), 
                 #this allows me to put the checkmarks ontop of the map to allow people to view earthquake depth or overlay a heatmap
                 absolutePanel(top = 60, left = 20, 
-                          checkboxInput("markers", "Depth", FALSE),
-                          checkboxInput("heat", "Heatmap", FALSE)
+                          checkboxInput("markers", "Sentiment", FALSE),
+                          checkboxInput("heat", "Social Distancing", FALSE)
             ))),
+        
+        tabPanel("Geographic Analysis v2",
+                 
+                 h3("How positive, negative, or neutral is sentiment across the United States?"),
+                 
+                 br(),
+                 
+                 h4("[Insert summary sentence here]"),
+                 
+                 ),
         
         tabPanel("Google Search Trends",
                  
@@ -194,14 +219,24 @@ server <- function(input, output) {
     })
     
     # First Sentiment Analysis Chart (Polarity) 
-    output$polarity_chart <- renderImage({
+    output$polarity_chart2 <- renderImage({
         list(
-            src = "polarity_chart.png",
+            src = "polarity_chart2.png",
             contentType = 'image/png',
             width = 600,
-            height = 600
+            height = 400
         )
-    })
+    }, deleteFile = FALSE)
+    
+    # Second Sentiment Analysis Chart (Frequency) 
+    output$freq_chart <- renderImage({
+        list(
+            src = "freq_chart.png",
+            contentType = 'image/png',
+            width = 600,
+            height = 400
+        )
+    }, deleteFile = FALSE)
     
     
     # create the map

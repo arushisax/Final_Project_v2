@@ -18,6 +18,8 @@ library(ggthemes)
 library(revgeo)
 library(mgsub)
 library(tidytext)
+install.packages("cowplot") #to use save_plot function
+library(cowplot)
 ```
 
 ```{r}
@@ -57,14 +59,15 @@ data_tidy_pol <- data_tidy_sentiment %>%
   )
 
 # Plot polarity vs. (term reordered by polarity), filled by pos_or_neg
- ggplot(data_tidy_pol, aes(reorder(words, Polarity), Polarity, fill = Sentiment)) +
+ polarity <- ggplot(data_tidy_pol, aes(reorder(words, Polarity), Polarity, fill = Sentiment)) +
   geom_col() + 
   ggtitle("Social Distancing Tweets: Sentiment Polarity by Word") + 
   # Rotate text and vertically justify
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5, size = 10))+
   xlab("Word") 
 
-ggsave("polarity_chart.png", plot=last_plot())
+#ggsave("polarity_chart.png", plot=last_plot())
+save_plot("polarity_chart2.png", polarity)
 
 ```
 
@@ -89,7 +92,7 @@ top_words <- word_counts %>%
   mutate(Words = reorder(words, n))
 
 # Use aes() to put words on the x-axis and n on the y-axis
-ggplot(top_words, aes(words, n, fill = sentiment)) +
+freq <- ggplot(top_words, aes(words, n, fill = sentiment)) +
  # Make a bar chart with geom_col()
   geom_col(show.legend = FALSE) +
   geom_text(aes(label = n, hjust=1), size = 3.5, color = "black") +
@@ -98,6 +101,6 @@ ggplot(top_words, aes(words, n, fill = sentiment)) +
   ggtitle("Most Common Positive and Negative words") + theme_classic()
 
 #ggsave("freq_chart.png")
-
+save_plot("freq_chart.png", freq)
 ```
 
