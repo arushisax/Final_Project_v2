@@ -34,7 +34,7 @@ for (i in seq(data_corp)) {
 }
 
 # Remove stop words
-new_stops <-c("covid","iphone","coronavirus","hrefhttptwittercomdownloadandroid","relnofollowtwitter","androida","hrefhttptwittercomdownloadiphone","relnofollowtwitter","iphonea","web","rt","chuonlinenews","hrefhttpsmobiletwittercom","hrefhttptwittercomdownloadipad","bharianmy","lebih","berbanding","dijangkiti","kumpulan","mudah","terdedah","covidhttpstcoigdxdtmvrg","hrefhttpsabouttwittercomproductstweetdeck", "darah","httpspbstwimgcomprofilebanners","httpabstwimgcomimagesthemesthemebgpng","httpabstwimgcomimagesthemesthemebggif","also")
+new_stops <-c("covid","iphone","coronavirus","hrefhttptwittercomdownloadandroid","relnofollowtwitter","androida","hrefhttptwittercomdownloadiphone","relnofollowtwitter","iphonea","web","rt","chuonlinenews","hrefhttpsmobiletwittercom","hrefhttptwittercomdownloadipad","bharianmy","lebih","berbanding","dijangkiti","kumpulan","mudah","terdedah","covidhttpstcoigdxdtmvrg","hrefhttpsabouttwittercomproductstweetdeck", "darah","httpspbstwimgcomprofilebanners","httpabstwimgcomimagesthemesthemebgpng","httpabstwimgcomimagesthemesthemebggif","also","cna","twitter")
 data_corp <- tm_map(data_corp, removeWords, words = c(stopwords("English"), new_stops))
 data_corp <- tm_map(data_corp, stripWhitespace)
 data_corp <- tm_map(data_corp, PlainTextDocument)
@@ -50,7 +50,7 @@ myDTM = TermDocumentMatrix(data_corp,
   
 # Save as RDS so that I can use in shinyapp later
   
-  saveRDS(data_cleaned, file = "wordcloud_data.rds")
+  saveRDS(data_cleaned, file = "wordcloud_data2.rds")
   
   data_cleaned
   

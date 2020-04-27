@@ -32,7 +32,7 @@ pal <- colorFactor(
 )
 
 # Load data for word cloud
-data_cleaned <- read_rds("wordcloud_data.rds")
+data_cleaned <- read_rds("wordcloud_data2.rds")
 
 ####### For Google Search analysis tab
 # Load google search trends vs. social distancing table
