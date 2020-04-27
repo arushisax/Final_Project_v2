@@ -1,0 +1,12 @@
+name: COVID_social_distancing
+title: COVID_social_distancing
+username:
+account: arushisax
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2189869
+bundleId: 3068189
+url: https://arushisax.shinyapps.io/COVID_social_distancing/
+when: 1587928777.00983
+asMultiple: FALSE
+asStatic: FALSE

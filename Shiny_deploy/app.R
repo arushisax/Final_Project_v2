@@ -48,44 +48,47 @@ ui <-   shinyUI(
         ##########
         ##ABOUT##
         #########
+        tabPanel("At a Glance",
+                 br(),
+                 ## Load image
+                 imageOutput("flattencurve", width = "100%", height = "100%"),
+                 br(),
+                 
+                 h2("How do US citizens feel about COVID-19 social distancing and how well are they adhering to the measure? ", align = "center"),
+                 h4(em("An analysis of Twitter activity to understand public reaction in March 2020"), align = "center"),
+                 
+                  h3("Methodology"),
+                 
+                 br(),
+                 
+                 p("In this project I explore the following questions by section:"),
+                 br(),
+                 p(strong("Tweet Analysis - Word Cloud:")),
+                 p(em("What are the most common themes and concepts when people discuss social distancing on Twitter?")),
+                 p("+ A word cloud of common words in my aggregated Social Distancing Tweets collection."),
+                 
+                 br(),
+                 
+                 p(strong("Tweet Analysis - Sentiments:")),
+                 p(em("How positive or negative are people’s opinions about social distancing?")),
+                 p("+ Most common negative words and positive words. The takeaway from this analysis is that there are more positive themes as opposed to negative themes in this random sampling."),
+                 
+                 br(),
+                 
+                 p(strong("Geographic Analysis:")),
+                 p(em("Does positive or negative sentiment vary by US state?")),
+                 p("+ There is a mix of sentiment throughout the United States, with positive and neutral statements having greater representation than expected. These Tweets are a random sample and do not accurately capture public sentiment because many citizens do not post thoughts on Twitter. Furthermore, sentiment analysis libraries are not sophisticated enough to pick up tones such as sarcasm, which are quite common on Twitter."),
+                 
+                 br(),
+                 
+                 p(strong("Google Search Trends:")),
+                 p(em("If people are social distancing more, are they also more likely to read about social distancing?")),
+                 p("+ Found reasonably strong correlation between social distancing and search activity related to those concepts. Therefore, as individuals are forced or inclined to social distance, they want to increase their awareness of the topic. One can also make the reverse claim but I chose social distancing as my independent variable, as opposed to the outcome variable, because social distancing is more likely to be an exogenous directive mandated by local and /or state governments. Given some of correlation coefficients and p-values demonstrated by these charts, it is reasonable to state that as social distancing increases within a US state, the appetite to learn about it may also increase.")
+                 
+                 
+                 
+        ),
         
-        tabPanel("About",
-                
-                 
-                 #title and subtitle
-                 
-                 h2("How do citizens feel about COVID-19 social distancing and how well are US states adhering to the measure? ", align = "center"),
-                 h4(em("An analysis of Twitter activity to understand public reaction in April 2020"), align = "center"),
-                 br(),
-                 div(),
-                 
-                 
-                 
-                 br(),
-                 
-                 fluidRow(column(2), column(8,
-                                            
-                                            h4(strong("About this Project")),          
-                                            
-                                            #text to introduce project
-                                            
-                                            p("The purpose of the project is to understand public sentiment about social distancing by looking at Twitter data and comparing it to other data sets such as Google Search Trends and Google Mobility data.
-                                              I used three different data sets. The first data set was a random sample of 18,000 Tweets from the week of April 12,2019 related to 'social distancing'. The second data set was Google Mobility data by state which demonstrates the average deviance in population movement vs. baseline. The last dataset was the average popularity of certain COVID-19 related search terms by US state."),
-                                            
-                                            br(),
-                                            
-                                            #text to explain how I selected the accounts to analyze and how I coded for gender
-                                            
-                                            h4(strong("How this project works")),
-                                            
-                                            
-                                            
-                                            p("My analysis combines sentiment analysis with correlation analysis. First, I seek to understand the general themes and sentiments demonstrated by the Twitter activity. This is reflective of the social pulse and sentiment about social distancing throughout the United States. Next, I seek to understand how does public sentiment by state compare against each state's actual adherence to Social Distancing measures. Adherence is measured by the Google mobility data. The more negative a state's average score, the more their average movement has decreased versus baseline activity and therefore the more they are social distancing. Lastly, I look to understand the average social distancing score of each and see if correlates with their search activity"),
-                                            
-                                            span(),
-                                            
-                                            p("I found that there is strong correlation between high social distancing adherence and search activity about those concepts. This leads me to believe that as individuals are forced or inclined to social distance, they want to increase their awareness of the topic. One can also make the reverse claim that as people search more about the topic, they are more likely to social distance. However, I chose social distancing adherence as my indepedent variable, as opposed to the outcome variable, because social distancing is more likely to be an exogenous directive mandated by local and /or state governments. Note that certain states could have differing social distancing scores for a variety of reasons. Firstly, some states have stricter lockdown directives than others (i.e. California). Secondly, other states are less dense and less urban to begin with therefore it is difficult to deviate from baseline activity if baseline activity and movement was already low (i.e. Wyoming). However, it is reasonable to state that as social distancing increases within a US state, the appetite to learn about it also increases.")
-                 ))),
         tabPanel("Tweet Analysis",
                  tabsetPanel(
                      
@@ -93,7 +96,7 @@ ui <-   shinyUI(
                      
                      tabPanel("Word Cloud",
                               
-                              h3("Selected English-language Tweets about Social Distancing (April 2020)"),
+                              h3("Selected English-language Tweets about Social Distancing (March 2020)"),
                               
                               br(),
                               
@@ -155,26 +158,11 @@ ui <-   shinyUI(
                  
                  br(),
                  
-                 h4("[Insert summary sentence here]"),
+                 h4("There is a relatively equal distribution of positive, negative, and neutral sentiment with positive sentiment being greater than expected"),
         
              mainPanel( 
                 #this will create a space for us to display our map
-                leafletOutput(outputId = "mymap"), 
-                #this allows me to put the checkmarks ontop of the map to allow people to view earthquake depth or overlay a heatmap
-                absolutePanel(top = 60, left = 20, 
-                          checkboxInput("markers", "Sentiment", FALSE),
-                          checkboxInput("heat", "Social Distancing", FALSE)
-            ))),
-        
-        tabPanel("Geographic Analysis v2",
-                 
-                 h3("How positive, negative, or neutral is sentiment across the United States?"),
-                 
-                 br(),
-                 
-                 h4("[Insert summary sentence here]"),
-                 
-                 ),
+                leafletOutput(outputId = "mymap"))),
         
         tabPanel("Google Search Trends",
                  
@@ -182,7 +170,7 @@ ui <-   shinyUI(
                  
                  br(),
                  
-                 h4("[Insert summary sentence here]"),
+                 h4("Google searches for 'Social Distancing' has reasonably strong positive correlation with social distancing adherence. High p-values for 'COVID-19' and 'Social Distancing' searches indicate that the relationship between social distancing and Google searches is significant."),
                  
                  sidebarPanel(
                      helpText("Choose a Google search term to understand its search popularity vs. actual social distancing within each US state"),
@@ -200,7 +188,61 @@ ui <-   shinyUI(
                  mainPanel(plotOutput("scatterplot"))
                  
               
-                 )
+                 ),
+        tabPanel("About",
+                 
+                 
+                 # Title
+                 
+                 h2("Understanding how US citizens feel about and conduct social distancing"),
+                 br(),
+                 div(),
+                 
+                 
+                 
+                 br(),
+                 
+                 fluidRow(column(2), column(8,
+                                            
+                                            h4(strong("About this Project")),          
+                                            
+                                            #text to introduce project
+                                            
+                                            p("The purpose of the project is to understand public sentiment about social distancing, across the United States, via Twitter Data and correlate it to the extent to which citizens are effectively distancing."),
+                                            
+                                            br(),
+                                            
+                                            p("On March 11, 2020 the World Health Organization officially declared COVID-19 (a coronavirus) to be a global pandemic. Within that week, states across the United States of American, as well as countries around the world, quickly began instituting ‘social distancing’ public health measures to slow the transmission of infection and prevent overwhelming health care systems. Social Distancing varied from state-to-state and ranged from large-scale measures such as canceling group events and closing bars and restaurants to individual-level measures such as staying 6 feet away from all persons outside of your immediate household. Because these measures curtail normal life and daily interactions, they undoubtedly took a toll on the public."),
+                                            
+                                            br(),
+                                            
+                                            h4(strong("The Data")),
+                                            
+                                            
+                                            
+                                            p("My analysis utilizes three data sets:"),
+                                            
+                                            span(),
+                                            br(),
+                                            
+                                            p("(1) Twitter Data: A random sample of 15,000 English language, US-based tweets with the words ‘social distancing’ posted after March 11, 2020. The Twitter API does not allow users to specific day / month timeframes prior to last 12 days."),
+                                            p("(2) Google Search Trends: Explored popularity of three individual search terms “COVID-19”, “coronavirus”, and “social distancing” between March 11, 2020 and March 29, 2020 and took an average across all three terms as well. Search popularity score is calculated on a scale from 0 to 100, where 100 is the location with most popularity as a fraction of total searches and a value of 50 indicates a location in which the search term is half as popular."),
+                                            p("(3) -	Google COVID-19 Mobility Reports: My data source was a library called Amarang (GitHub) which scraped and disaggregated Google’s published PDF charts demonstrating COVID-19 mobility in the US. I took an average of the values across counties and categories (Parks, Shopping Malls, Restaurants, etc.) from March 11, 2020 to March 29, 2020 to get an aggregate state level view. The data shows an increase or decrease in movement vs. baseline activity. The more negative the number, the greater the social distancing adherence in that US state. Note that some US states had stricter lockdowns compared to other states."),
+                                            
+                                            br(),
+                                            
+                                            h4(strong("About Me")),
+                                            
+                                            p("My name is Arushi Saxena and I am first year Masters in Design Engineering (MDE) candidate at Harvard’s Graduate School of Design and the School of Engineering and Applied Sciences. My research focus is on the ethical design, development, and use of technology."),
+                                            p("You can reach me at ",
+                                              a("arushisaxena@mde.harvard.edu",
+                                                href = "mailto: arushisaxena@mde.harvard.edu",),
+                                              "or ",
+                                              a("LinkedIn.",
+                                                href = "https://www.linkedin.com/in/arushisaxena/"))
+                                            
+                                            
+                 )))
         
         
         )
@@ -210,6 +252,16 @@ ui <-   shinyUI(
                              
 # Define server logic required to draw a histogram
 server <- function(input, output) {
+    
+    # Load image in About page
+    output$flattencurve <- renderImage({
+        
+        list(src = 'flatten_curve.jpeg',
+             height = 300,
+             width = 500,
+             style = "display: block; margin-left: auto; margin-right: auto;")},
+        deleteFile = FALSE
+    )
     
     # Make the Word Cloud
     output$plot <- renderPlot({
